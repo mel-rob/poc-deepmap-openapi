@@ -1,0 +1,412 @@
+openapi: 3.0.1
+info:
+  title: User Account Service
+  description: This service is used for working with unique identifiers for user accounts.
+  termsOfService: https://www.teamsnap.com
+  contact:
+    email: platform@teamsnap.com
+  version: 1.0.1
+externalDocs:
+  description: Find out more about TeamSnap
+  url: https://www.teamsnap.com
+servers:
+  - url: https://user-account-service.teamsnap.com
+tags:
+  - name: userAccounts
+    description: User Accounts
+    externalDocs:
+      description: more
+      url: https://www.teamsnap.com
+  - name: userAccount
+    description: TeamSnap User Accounts
+    externalDocs:
+      description: more
+      url: https://www.teamsnap.com
+paths:
+  /userAccounts:
+    get:
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: The numbers of items to return
+        example: 5
+      tags:
+       - userAccounts
+      summary: Gets all Users
+      responses:
+        '200':
+          description: Succesfully got every account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAccount'
+              #examples:
+                #getAccount:
+                  #value: '{account:123c-456b-7890d}'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/UserAccount'
+        '400':
+          description: Bad Request, an email or username must be provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: Internal server error. Something went wrong on our end!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+    post:
+      tags:
+      - userAccount
+      summary: Create a User Account
+      description: Create a new User Account with the provided information
+      operationId: createAccount
+      requestBody:
+        required: true
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              type: object
+              title: CreateUserPayload
+              properties:
+                email:
+                  type: string
+                username:
+                  type: string
+      responses:
+        '201':
+          description: Successfully created UserAccount
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAccount'
+        '400':
+          description: Bad Request, an email or username must be provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: Internal server error. Something went wrong on our end!
+          content:
+            apllication/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      x-codegen-request-body-name: body
+  /userAccount/{uuid}/verification:
+    put:
+      tags:
+        - userAccount
+      summary: Verify / Unverify
+      description: Verify/Unverify a given account for the provided verification class
+      operationId: verifyAccount
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+          required: true
+          description: UUID of the user account to modify verification status of
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              type: object
+              title: VerifyAccountPayload
+              properties:
+                verificationClass:
+                  type: string
+                  example: coppa_age_verification
+                verified:
+                  type: boolean
+                userAccountUUID:
+                  type: string
+                  example: 123e4567-e89b-12d3-a456-426614174000
+        required: true      
+      responses:
+        '201':
+          description: Successfully verified UserAccount
+        '400':
+          description: Bad Request, a verification and verified status must be provided.
+        '500':
+          description: Internal server error. Something went wrong on our end!  
+
+  /userAccount/{uuid}:
+    get:
+      tags:
+        - userAccount
+      summary: Get an existing User Account by UUID
+      description: Get an existing User Account by UUID
+      operationId: getUserAccount
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          description: Get an existing User Account by UUID
+          schema:
+            type: string
+            example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: Successful get for user account
+          content:
+            application/json:
+              schema:
+                properties:
+                  UUID:
+                    type: string
+                    example: 123e4567-e89b-12d3-a456-426614174000
+                  username:
+                    type: string
+                    example: TeamSnap_user
+                  firstName:
+                    type: string
+                    example: John
+                  lastName:
+                    type: string
+                    example: Smith
+                  emails:
+                    type: array
+                    items: {}
+                    example:
+                      email_1: john_smith@example.com
+                      email_2: john_son@example.com
+                      email_3: john_wife@example.com
+                  verified:
+                    type: boolean
+                    example: true
+                  active:
+                    type: boolean
+                    example: true
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+                type: object
+                title: ModifyUserAccountSuccessResponse
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '404':
+          description: UserAccount not found by ID
+        '500':
+          description: Internal server error. Something went wrong on our end!
+    patch:
+      tags:
+        - userAccount
+      summary: Modify an existing User Account
+      description: Modify an existing User Account
+      operationId: modifyUserAccount
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+          required: true
+          description: UUID of account to modify verification status of
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              type: object
+              title: UpdateUserPayload
+              properties:
+                UUID:
+                  type: string
+                username:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                emails:
+                  type: array
+                  items:
+                    type: string
+        required: true
+      responses:
+        '201':
+          description: Successfully modified UserAccount
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ModifyUserAccountSuccessResponse
+                properties:
+                  verificationClass:
+                    type: string
+                    example: coppa_age_verification
+                  verified:
+                    type: boolean
+                  userAccountUUID:
+                    type: string
+                    example: 123e4567-e89b-12d3-a456-426614174000
+        '400':
+          description: Bad Request, a verification and verified status must be provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: Internal server error. Something went wrong on our end!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+    delete:
+      tags:
+        - userAccount
+      summary: Delete
+      description: Delete a given account
+      operationId: deleteAccount
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+          required: true
+          description: UUID of account to delete
+      responses:
+        '201':
+          description: Successfully deleted UserAccount
+          content:
+            application/json:
+              schema:
+                type: object
+                title: DeleteUserSuccessResponse
+                properties:
+                  userAccountUUID:
+                    type: string
+                    example: 123e4567-e89b-12d3-a456-426614174000
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/UserAccount'
+        '400':
+          description: Bad Request, a verification and verified status must be provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: Internal server error. Something went wrong on our end!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      x-codegen-request-body-name: body
+      
+components:
+  schemas:
+    Verifications:
+      type: object
+      properties:
+        UUID:
+          type: string
+        userAccountUUID:
+          type: string
+        verificationClass:
+          type: string
+        verifications:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      xml:
+        name: Verification
+    UserAccount:
+      description: Model containing user_account information.
+      type: object
+      properties:
+        UUID:
+          type: string
+          example: 123e4567-e89b-12d3-a456-426614174000
+        username:
+          type: string
+          example: TeamSnap_user
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Smith
+        emails:
+          type: array
+          items:
+            example:
+              email_1: john_smith@example.com
+              email_2: john_son@example.com
+              email_3: john_wife@example.com
+        verified:
+          type: boolean
+          example: true
+        active:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      xml:
+        name: UserAccount
+    Success:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Error message"
+        status:
+          type: integer
+          example: 200
+        time:
+          type: string
+          format: date-time
+    ValidationError:
+      type: object
+      properties:
+        field:
+          type: string
+          example: "name of field"
+        message:
+          type: string
+          example: "error message"
+    ValidationErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Error message"
+        status:
+          type: integer
+          example: 200
+        time:
+          type: string
+          format: date-time
+  
+
