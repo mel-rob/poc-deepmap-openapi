@@ -1,0 +1,5 @@
+output:
+  generated/api/types.gen.go
+generate:
+  - types
+package: api

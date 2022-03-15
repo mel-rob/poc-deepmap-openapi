@@ -1,0 +1,5 @@
+output:
+  generated/api/user-accounts-clients.gen.go
+generate:
+  - types
+package: api
