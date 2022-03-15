@@ -1,5 +1,0 @@
-output:
-  user-accounts-types.gen.go
-generate:
-  - types
-package: api
