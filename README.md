@@ -8,3 +8,6 @@ See: https://teamsnap.atlassian.net/browse/CSE-109
 
 ## To run server
 `go run ./`
+
+## Hit example endpoint
+http://localhost:8081/userAccounts
